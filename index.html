@@ -20,6 +20,60 @@
         })
     </script>
     
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function getNearestSectionId(element) {
+                var node = element;
+                while (node && node !== document.body) {
+                    if (node.id) return node.id;
+                    node = node.parentElement;
+                }
+                return null;
+            }
+
+            function getElementLabel(element) {
+                var label = element.getAttribute('aria-label') || element.innerText || '';
+                return label.trim().slice(0, 100);
+            }
+
+            // Track clicks on primary CTAs (buttons and links)
+            document.body.addEventListener('click', function (event) {
+                var target = event.target.closest('a.btn-primary, button.btn-primary');
+                if (!target) return;
+
+                var properties = {
+                    text: getElementLabel(target),
+                    href: target.getAttribute('href') || null,
+                    section: getNearestSectionId(target),
+                    path: window.location.pathname
+                };
+
+                try { posthog.capture('cta_clicked', properties); } catch (e) {}
+            });
+
+            // Track contact form submit success/error
+            var contactForm = document.querySelector('section#contact form');
+            if (contactForm) {
+                // Invalid field error during submission attempt
+                contactForm.addEventListener('invalid', function (ev) {
+                    var field = ev.target;
+                    var props = {
+                        field: field.name || field.id || 'unknown',
+                        reason: 'invalid',
+                        section: 'contact',
+                        path: window.location.pathname
+                    };
+                    try { posthog.capture('form_submit_error', props); } catch (e) {}
+                }, true);
+
+                // Successful submit (HTML5 validation passed). Formspree handles the POST + redirect
+                contactForm.addEventListener('submit', function () {
+                    try { posthog.capture('form_submit_success', { section: 'contact', path: window.location.pathname }); } catch (e) {}
+                });
+            }
+        });
+    </script>
+    
     <style>
         :root {
             --primary: #1E3A8A;
