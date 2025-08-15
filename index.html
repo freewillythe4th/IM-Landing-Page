@@ -117,6 +117,77 @@
         });
     </script>
     
+    <!-- Scroll-depth and outbound link tracking -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Scroll depth tracking at 25/50/75/100%
+            var thresholds = [25, 50, 75, 100];
+            var fired = { 25: false, 50: false, 75: false, 100: false };
+            function computeScrollPercent() {
+                var doc = document.documentElement;
+                var body = document.body;
+                var scrollTop = (window.pageYOffset || doc.scrollTop) - (doc.clientTop || 0);
+                var viewport = window.innerHeight || doc.clientHeight;
+                var fullHeight = Math.max(
+                    body.scrollHeight, doc.scrollHeight,
+                    body.offsetHeight, doc.offsetHeight,
+                    body.clientHeight, doc.clientHeight
+                );
+                var pct = Math.round(((scrollTop + viewport) / fullHeight) * 100);
+                if (pct < 0) pct = 0;
+                if (pct > 100) pct = 100;
+                return pct;
+            }
+            function checkThresholds() {
+                var pct = computeScrollPercent();
+                for (var i = 0; i < thresholds.length; i++) {
+                    var t = thresholds[i];
+                    if (!fired[t] && pct >= t) {
+                        fired[t] = true;
+                        try { posthog.capture('scroll_depth', { percent: t, path: window.location.pathname }); } catch (e) {}
+                    }
+                }
+            }
+            var ticking = false;
+            window.addEventListener('scroll', function () {
+                if (!ticking) {
+                    window.requestAnimationFrame(function () {
+                        checkThresholds();
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            }, { passive: true });
+            // Run once in case page is short
+            checkThresholds();
+
+            // Outbound link tracking (includes mailto/tel)
+            document.body.addEventListener('click', function (event) {
+                var link = event.target && event.target.closest ? event.target.closest('a[href]') : null;
+                if (!link) return;
+                var rawHref = link.getAttribute('href') || '';
+                try {
+                    var url = new URL(rawHref, window.location.href);
+                    var isExternal = url.origin !== window.location.origin || url.protocol === 'mailto:' || url.protocol === 'tel:';
+                    if (!isExternal) return;
+                    var props = {
+                        href: url.href,
+                        text: (link.getAttribute('aria-label') || link.innerText || '').trim().slice(0, 100),
+                        target: link.getAttribute('target') || '',
+                        rel: link.getAttribute('rel') || '',
+                        protocol: url.protocol.replace(':', ''),
+                        host: url.host,
+                        path: window.location.pathname
+                    };
+                    try { posthog.capture('outbound_click', props); } catch (e) {}
+                } catch (err) {
+                    // Fallback for malformed hrefs
+                    try { posthog.capture('outbound_click', { href: rawHref, text: (link.innerText || '').trim().slice(0, 100), path: window.location.pathname }); } catch (e) {}
+                }
+            });
+        });
+    </script>
+    
     <style>
         :root {
             --primary: #1E3A8A;
