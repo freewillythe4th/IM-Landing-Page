@@ -191,35 +191,17 @@
                         </ul>
                     </div>
 
-                    <!-- Download Form - Beehiiv Integration -->
+                    <!-- Download Form - Beehiiv Embed -->
                     <div class="bg-white rounded-xl shadow-lg p-8">
-                        <!-- Beehiiv form integration -->
-                        <form action="https://subscribe-forms.beehiiv.com/d946ff58-e98b-4ce9-8e62-73a698514f47" method="post" class="space-y-6">
-                            <input type="hidden" name="utm_source" value="resource-download">
-                            <input type="hidden" name="utm_medium" value="lead-magnet">
-                            <input type="hidden" name="utm_campaign" value="gtm-template">
-                            <input type="hidden" name="referring_site" value="">
-                            
-                            <div>
-                                <label for="firstName" class="block mb-2 font-medium text-gray-700">First Name*</label>
-                                <input type="text" name="name" required 
-                                       class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            </div>
-                            
-                            <div>
-                                <label for="email" class="block mb-2 font-medium text-gray-700">Work Email*</label>
-                                <input type="email" name="email" required 
-                                       class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            </div>
-                            
-                            <button type="submit" class="btn-primary w-full px-6 py-4 rounded-lg text-white font-bold text-lg shadow-lg">
-                                Download Now
-                            </button>
-                            
-                            <p class="text-gray-500 text-sm text-center">
-                                No spam. We respect your inbox. Unsubscribe anytime.
-                            </p>
-                        </form>
+                        <script async src="https://subscribe-forms.beehiiv.com/embed.js"></script>
+                        <iframe src="https://subscribe-forms.beehiiv.com/d946ff58-e98b-4ce9-8e62-73a698514f47" 
+                                class="beehiiv-embed" 
+                                data-test-id="beehiiv-embed" 
+                                frameborder="0" 
+                                scrolling="no" 
+                                style="width: 100%; height: 415px; margin: 0; border-radius: 12px !important; background-color: transparent; box-shadow: none; max-width: 100%;">
+                        </iframe>
+                        <script type="text/javascript" async src="https://subscribe-forms.beehiiv.com/attribution.js"></script>
                     </div>
                 </div>
 
